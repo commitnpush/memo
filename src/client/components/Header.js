@@ -7,7 +7,7 @@ class Header extends Component{
       <li><Link to="/signin"><i className="material-icons">vpn_key</i></Link></li>
     );
     const signOutButton = (
-      <li><Link to="/signout"><i className="material-icons">lock_open</i></Link></li>
+      <li><a onClick={this.props.onSignOut}><i className="material-icons">lock_open</i></a></li>
     );
     return(
       <nav>

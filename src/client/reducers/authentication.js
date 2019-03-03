@@ -5,13 +5,14 @@ const initialState = {
   signIn : {
     status: 'INIT'
   },
-  status: {
-    isSignedIn: false,
-    currentUser: ''
-  },
   register : {
     status: "INIT",
     error: -1
+  },
+  status: {
+    valid: false,
+    isSignedIn: false,
+    currentUser: ''
   }
 }
 
@@ -61,6 +62,33 @@ export default function authentication(state, action){
         register : {
           status: {$set: "FAILURE"},
           error: {$set: action.error}
+        }
+      });
+    case types.AUTH_GET_STATUS:
+      return update(state, {
+        status : {
+          isSignedIn : { $set: true }
+        }
+      });
+    case types.AUTH_GET_STATUS_SUCCESS:
+      return update(state, {
+        status : {
+          valid : { $set: true },
+          currentUser: { $set: action.username}
+        }
+      });
+    case types.AUTH_GET_STATUS_FAILURE:
+      return update(state, {
+        status : {
+          valid : { $set: false },
+          isSignedIn : { $set: false }
+        }
+      });
+    case types.AUTH_SIGN_OUT:
+      return update(state, {
+        status: {
+          isSignedIn : {$set: false},
+          currentUser : {$set: ''}
         }
       });
     default:
