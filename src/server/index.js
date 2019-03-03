@@ -4,9 +4,10 @@ import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import session from 'express-session';
 import api from './routes';
-
+import path from 'path'
 const app = express();
 
+app.use(express.static('dist'));
 /* mongodb connection */
 const db = mongoose.connection;
 db.on('error', console.error);
@@ -20,13 +21,16 @@ app.use(session({
   saveUninitialized:true
 }));
 
-
-
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
 
 app.use('/api', api);
+
+/* support client-side routing */
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../../public/index.html'));
+});
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
