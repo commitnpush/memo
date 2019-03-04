@@ -22,6 +22,7 @@ class App extends Component {
         }
         document.cookie = 'key='+btoa(JSON.stringify(signInData));
       }
+
     );
   }
 
@@ -40,13 +41,14 @@ class App extends Component {
     if(typeof signInData === 'undefined') return;
     signInData = JSON.parse(atob(signInData));
 
-    //if signed in, do nothing
+    //if not signed in, do nothing
     if(!signInData.isSignedIn) return;
+
 
     this.props.getStatusRequest().then(
       () => {
+        //if signed in but session is not valid
         console.log(this.props.status);
-        //if session is not valid
         if(!this.props.status.valid){
           signInData = {
             isSignedIn: false,
@@ -54,14 +56,15 @@ class App extends Component {
           }
           document.cookie = `key=${btoa(JSON.stringify(signInData))}`
           let $toastContent = $('<span style="color: #FFB4BA">Your session is expired, please sign in again</span>');
-                    Materialize.toast($toastContent, 4000);
+          Materialize.toast($toastContent, 4000);
+          
         }
       }
     )
   }
   render(){
+
     let isAuthPage = /(signin|register)/.test(this.props.location.pathname);
-    
     return (
       <div>
         {isAuthPage ? null : <Header isSignedIn={this.props.status.isSignedIn} onSignOut={this.handleSignOut}/>}

@@ -82,6 +82,7 @@ export default function authentication(state, action){
         status : {
           valid : { $set: false },
           isSignedIn : { $set: false }
+          
         }
       });
     case types.AUTH_SIGN_OUT:

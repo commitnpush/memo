@@ -21,7 +21,7 @@ router.post('/', (req, res) => {
   }
 
   //CHECK CONTENTS VALID
-  if(typeof req.body.contents !== 'string' || req.body.contents === ''){
+  if(typeof req.body.content !== 'string' || req.body.content === ''){
     return res.status(400).json({
       error: "EMPTY CONTENTS",
       code:2
@@ -31,7 +31,7 @@ router.post('/', (req, res) => {
   //CREATE NEW MEMO
   let memo = new Memo({
     writer: req.session.loginInfo.username,
-    contents: req.body.contents
+    content: req.body.content
   });
 
   //SAVE IN DATABASE
@@ -173,6 +173,48 @@ router.get('/', (req, res) => {
     if(err) throw err;
     res.json(memos);
   });
+});
+
+router.get('/:listType/:id', (req, res) => {
+  let listType = req.params.listType;
+  let id = req.params.id;
+
+  //CHECK LIST TYPE VALIDITY
+  if(listType !== 'old' && listType !== 'new'){
+    return res.status(400).json({
+      error: "INVALID LISTTYPE",
+      code: 1
+    });
+  }
+
+  //CHECK MEMO ID VALIDITY
+  if(!mongoose.Types.ObjectId.isValid(id)){
+    return res.status(400).json({
+      error: "INVALID ID",
+      code: 2
+    });
+  }
+
+  let objId = new mongoose.Types.ObjectId(id);
+  if(listType === 'new'){
+    //GET NEWER MEMO
+    Memo.find({_id: {$gt: objId}})
+    .sort({_id: -1})
+    .limit(6)
+    .exec((err, memos) => {
+      if(err) throw err;
+      return res.json(memos);
+    });
+  }else{
+    //GET OLDER MEMO
+    Memo.find({_id: {$lt: objId}})
+    .sort({_id: -1})
+    .limit(6)
+    .exec((err, memos) => {
+      if(err) throw err;
+      return res.json(memos);
+    });
+  }
 });
 
 export default router;
