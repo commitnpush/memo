@@ -14,6 +14,21 @@ class Memo extends Component{
     this.handleRemove = this.handleRemove.bind(this);
     this.handleStar = this.handleStar.bind(this);
   }
+
+  shouldComponentUpdate(nextProps, nextState){
+    let current = {
+      props: this.props,
+      state: this.state
+    };
+
+    let next = {
+      props: nextProps,
+      state: nextState
+    }
+
+    return JSON.stringify(current) !== JSON.stringify(next);
+    
+  }
   
   componentDidUpdate(){
     //INITIALIZE DROPDOWN

@@ -231,6 +231,7 @@ class Home extends Component{
 
   /* STAR MEMO */
   handleStar(id, index){
+    if(!this.props.isSignedIn) return;
     return this.props.memoStarRequest(id, index).then(()=>{
       console.log(this.props.star.status);
       if(this.props.star.status !== 'SUCCESS'){

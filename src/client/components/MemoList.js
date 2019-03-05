@@ -3,8 +3,11 @@ import PropTypes from 'prop-types';
 import { Memo } from 'components';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 class MemoList extends Component{
+  shouldComponentUpdate(nextProps, nextState){
+    return JSON.stringify(this.props) !== JSON.stringify(nextProps);
+  }
   render() {
-    
+    console.warn("MemoList.render excuted");
 
     const mapToComponents = data => {
       return data.map((memo, i) => {
