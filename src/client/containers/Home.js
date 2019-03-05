@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { Write, MemoList } from 'components';
 import { connect } from 'react-redux';
-import { memoPostRequest, memoListRequest, memoEditRequest } from 'actions/memo';
+import { memoPostRequest, memoListRequest, memoEditRequest, memoRemoveRequest } from 'actions/memo';
 import { memoEdit } from '../actions/memo';
 class Home extends Component{
   constructor(props){
@@ -10,6 +10,7 @@ class Home extends Component{
     this.loadNewMemo = this.loadNewMemo.bind(this);
     this.loadOldMemo = this.loadOldMemo.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
+    this.handleRemove = this.handleRemove.bind(this);
     this.state = {
       loadingState: false
     };
@@ -112,7 +113,41 @@ class Home extends Component{
     return this.props.memoListRequest(false, 'new', this.props.data[0]._id);
   }
 
-  /*EIDT MEMO */
+  /* REMOVE MEMO */
+  handleRemove(id, index){
+    return this.props.memoRemoveRequest(id, index).then(()=>{
+      if(this.props.remove.status === 'SUCCESS'){
+        Materialize.toast('Success!', 2000);
+      }else{
+        /*
+          ERROR CODES
+              1: INVALID ID
+              2: NOT LOGGED IN
+              3: NO RESOURCE
+              4: PERMISSION FAILURE
+        */
+       const errorMessage = [
+        'Something broke',
+        'You are not logged in',
+        'That memo does not exist anymore',
+        'You do not have permission'
+       ]
+
+       let error = this.props.remove.error;
+
+       // NOTIFY ERROR
+       let $toastContent = $('<span style="color: #FFB4BA">' + errorMessage[error - 1] + '</span>');
+       Materialize.toast($toastContent, 2000);
+   
+       // IF NOT LOGGED IN, REFRESH THE PAGE AFTER 2 SECONDS
+       if(error === 3) {
+           setTimeout(()=> {location.reload(false)}, 2000);
+       }
+      }
+    });
+  }
+
+  /* EDIT MEMO */
   handleEdit(id, index, content){
     return this.props.memoEditRequest(id, index, content).then(()=>{
       if(this.props.edit.status==="SUCCESS") {
@@ -193,7 +228,7 @@ class Home extends Component{
     return (
       <div className="wrapper">
         {this.props.isSignedIn ? <Write onPost={this.handlePost}/> : null}
-        <MemoList data={this.props.data} currentUser={this.props.currentUser} onEdit={this.handleEdit}/>
+        <MemoList data={this.props.data} currentUser={this.props.currentUser} onEdit={this.handleEdit} onRemove={this.handleRemove}/>
       </div>
     )
   }
@@ -206,6 +241,7 @@ const mapStateToProps = (state) => {
     post: state.memo.post,
     data: state.memo.list.data,
     edit: state.memo.edit,
+    remove: state.memo.remove,
     listStatus: state.memo.list.status,
     isLast:state.memo.list.isLast
   }
@@ -221,6 +257,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     memoEditRequest: (id, index, content) => {
       return dispatch(memoEditRequest(id, index, content));
+    },
+    memoRemoveRequest: (id, index) => {
+      return dispatch(memoRemoveRequest(id, index));
     }
   }
 }
