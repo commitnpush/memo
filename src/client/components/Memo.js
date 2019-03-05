@@ -12,7 +12,9 @@ class Memo extends Component{
     this.toggleEdit = this.toggleEdit.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
+    this.handleStar = this.handleStar.bind(this);
   }
+  
   componentDidUpdate(){
     //INITIALIZE DROPDOWN
     $('#dropdown-button-'+this.props.data._id).dropdown({
@@ -30,6 +32,7 @@ class Memo extends Component{
       value: e.target.value
     });
   }
+
   toggleEdit(){
     if(this.state.editMode){
       let id = this.props.data._id;
@@ -46,14 +49,22 @@ class Memo extends Component{
       });
     }
   }
+
   handleRemove(){
     let id = this.props.data._id;
     let index = this.props.index;
     this.props.onRemove(id, index);
   }
 
+  handleStar(){
+    let id = this.props.data._id;
+    let index = this.props.index;
+    this.props.onStar(id, index);
+  }
+
   render(){
     const { data, ownership } = this.props;
+    let starStyle = (data.starred.indexOf(this.props.currentUser) > -1) ? { color: '#ff9980' } : {} ;
 
     let editInfo = (
       <span style={{color: '#AAB5BC'}}>· Edited <TimeAgo date={data.date.edited} live={true}/></span>
@@ -83,7 +94,7 @@ class Memo extends Component{
           {data.content}
         </div>
         <div className="footer">
-          <i className="material-icons log-footer star icon-button">star</i>
+          <i className="material-icons log-footer star icon-button" style={starStyle} onClick={this.handleStar}>star</i>
           <span className="star-count">{data.starred.length}</span>
         </div>
       </div>
@@ -114,7 +125,9 @@ Memo.propTypes = {
   ownership: PropTypes.bool,
   onEdit: PropTypes.func,
   onRemove:PropTypes.func,
-  index: PropTypes.number
+  index: PropTypes.number,
+  onStar: PropTypes.func,
+  currentUser: PropTypes.string,
 }
 
 Memo.defaultProps = {
@@ -130,11 +143,15 @@ Memo.defaultProps = {
     starred: []
   },
   ownership: true,
+  currentUser: '',
   onEdit: (id, index, contents) => {
     console.error('onEdit function is not defined');
   },
   onRemove: (id, index) => {
     console.error('onRemove function is not defined');
+  },
+  onStar: (id, index) => {
+    console.error('onStar function is not defined');
   },
   index: -1
 }

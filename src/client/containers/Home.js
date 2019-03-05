@@ -1,7 +1,11 @@
 import React, {Component} from 'react';
 import { Write, MemoList } from 'components';
 import { connect } from 'react-redux';
-import { memoPostRequest, memoListRequest, memoEditRequest, memoRemoveRequest } from 'actions/memo';
+import { memoPostRequest, 
+         memoListRequest, 
+         memoEditRequest, 
+         memoRemoveRequest,
+         memoStarRequest } from 'actions/memo';
 import { memoEdit } from '../actions/memo';
 class Home extends Component{
   constructor(props){
@@ -11,6 +15,7 @@ class Home extends Component{
     this.loadOldMemo = this.loadOldMemo.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
+    this.handleStar = this.handleStar.bind(this);
     this.state = {
       loadingState: false
     };
@@ -224,11 +229,37 @@ class Home extends Component{
     )
   }
 
+  /* STAR MEMO */
+  handleStar(id, index){
+    return this.props.memoStarRequest(id, index).then(()=>{
+      console.log(this.props.star.status);
+      if(this.props.star.status !== 'SUCCESS'){
+        /*
+          TOGGLE STAR OF MEMO: POST /api/memo/star/:id
+          ERROR CODES
+            1: INVALID ID
+            2: NOT SIGNED IN
+            3: NO RESOURCE
+        */
+
+        const errorMessage = [
+          'Something broke',
+          'You are not signed in',
+          'That memo does not exist'
+        ];
+
+        //NOTIFY ERROR
+        let $toastContent = $('<span style="color: #FFB4BA">'+errorMessage[this.props.star.error -1]+'</span>');
+        Materialize.toast($toastContent,2000);
+      }
+    });
+  }
+
   render(){
     return (
       <div className="wrapper">
         {this.props.isSignedIn ? <Write onPost={this.handlePost}/> : null}
-        <MemoList data={this.props.data} currentUser={this.props.currentUser} onEdit={this.handleEdit} onRemove={this.handleRemove}/>
+        <MemoList data={this.props.data} currentUser={this.props.currentUser} onEdit={this.handleEdit} onRemove={this.handleRemove} onStar={this.handleStar}/>
       </div>
     )
   }
@@ -242,6 +273,7 @@ const mapStateToProps = (state) => {
     data: state.memo.list.data,
     edit: state.memo.edit,
     remove: state.memo.remove,
+    star: state.memo.star,
     listStatus: state.memo.list.status,
     isLast:state.memo.list.isLast
   }
@@ -260,6 +292,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     memoRemoveRequest: (id, index) => {
       return dispatch(memoRemoveRequest(id, index));
+    },
+    memoStarRequest: (id, index) => {
+      return dispatch(memoStarRequest(id, index));
     }
   }
 }

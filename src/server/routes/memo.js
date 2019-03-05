@@ -5,6 +5,66 @@ import mongoose from 'mongoose';
 const router = express.Router();
 
 /*
+  TOGGLE STAR OF MEMO: POST /api/memo/star/:id
+  ERROR CODES
+    1: INVALID ID
+    2: NOT SIGNED IN
+    3: NO RESOURCE
+*/
+router.post('/star/:id', (req, res) => {
+  //CHECK MEMO ID VALIDITY
+  if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+    return res.status(400).json({
+      error: "INVALID ID",
+      code: 1
+    });
+  }
+
+  //CHECK SIGN IN STATUS
+  if(typeof req.session.loginInfo === 'undefined'){
+    return res.status(403).json({
+      error: "NOT SIGNED IN",
+      code: 2
+    });
+  }
+
+  Memo.findById(req.params.id, (error, memo) => {
+    if(error) throw error;
+    
+    //MEMO DOES NOT EXIST
+    if(!memo){
+      return res.status(404).json({
+        error: "NO RESOURCE",
+        code:3
+      });
+    }
+
+    //GET INDEX OF USERNAME IN THE ARRAY
+    let index = memo.starred.indexOf(req.session.loginInfo.username);
+
+    //CHECK WHETHER THE USER ALREADY GIVEN A STAR
+    let hasStarred = index !== -1;
+
+    if(!hasStarred){
+      //IF IT DOES NOT EXIST
+      memo.starred.push(req.session.loginInfo.username);
+    }else{
+      memo.starred.splice(index, 1);
+    }
+
+    //SAVE THE MEMO
+    memo.save((error, memo) => {
+      if(error) throw error;
+      res.json({
+        success: true,
+        'has_starred': !hasStarred,
+        memo
+      });
+    });
+  });
+});
+
+/*
   WRITE MEMO: POST /api/memo
   BODY SAMPLE: {content: "sample"}
   ERROR CODES
@@ -13,6 +73,7 @@ const router = express.Router();
 */
 router.post('/', (req, res) => {
   //CHECK LOGIN STATUS
+  console.log(req.session.loginInfo);
   if(typeof req.session.loginInfo === 'undefined'){
     return res.status(403).json({
       error: "NOT LOGGED IN",

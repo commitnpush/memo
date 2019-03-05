@@ -1,2 +1,2 @@
-# scratch_start
-react + express 튜토리얼 어플리케이션
+# memo
+react + express 메모장 어플리케이션

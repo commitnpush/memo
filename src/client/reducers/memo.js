@@ -1,5 +1,6 @@
 import * as types from 'actions/ActionTypes';
 import update from 'react-addons-update';
+import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
 
 const initialState = {
   post: {
@@ -18,11 +19,14 @@ const initialState = {
   remove: {
     status: 'INIT',
     error: -1
+  },
+  star: {
+    status: 'INIT',
+    error: -1,
   }
 }
 
 export default function memo(state, action){
-  //console.log(action);
   if(typeof state === 'undefined'){
     state = initialState;
   }
@@ -131,6 +135,31 @@ export default function memo(state, action){
         return update(state, {
           remove: {
             status: {$set: "FAILURE"},
+            error: {$set: action.error}
+          }
+        });
+      case types.MEMO_STAR:
+        return update(state, {
+          star: {
+            status: {$set: "WAITING"},
+            error: {$set: -1}
+          }
+        });
+      case types.MEMO_STAR_SUCCESS:
+        return update(state, {
+          star:{
+            status: {$set: "SUCCESS"}
+          },
+          list:{
+            data:{
+              [action.index] : {$set: action.memo}
+            }
+          }
+        });
+      case types.MEMO_STAR_FAILURE:
+        return update(state, {
+          star: {
+            status: {$set: 'FAILURE'},
             error: {$set: action.error}
           }
         });

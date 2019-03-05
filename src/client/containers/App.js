@@ -27,6 +27,7 @@ class App extends Component {
   }
 
   componentDidMount(){
+    
     //get cookie by name
     function getCookie(name){
       var value = "; " + document.cookie;
@@ -38,9 +39,12 @@ class App extends Component {
     
     //get signin data from cookie
     let signInData = getCookie('key');
+    
+    //visit site first time or cookie was expired
     if(typeof signInData === 'undefined') return;
     signInData = JSON.parse(atob(signInData));
 
+    //console.warn(signInData);
     //if not signed in, do nothing
     if(!signInData.isSignedIn) return;
 
@@ -48,7 +52,7 @@ class App extends Component {
     this.props.getStatusRequest().then(
       () => {
         //if signed in but session is not valid
-        console.log(this.props.status);
+        console.warn(this.props.status);
         if(!this.props.status.valid){
           signInData = {
             isSignedIn: false,
@@ -57,7 +61,6 @@ class App extends Component {
           document.cookie = `key=${btoa(JSON.stringify(signInData))}`
           let $toastContent = $('<span style="color: #FFB4BA">Your session is expired, please sign in again</span>');
           Materialize.toast($toastContent, 4000);
-          
         }
       }
     )
