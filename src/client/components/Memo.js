@@ -2,6 +2,16 @@ import React, { Component}  from 'react';
 import PropTypes from 'prop-types';
 import TimeAgo from 'react-timeago';
 class Memo extends Component{
+  constructor(props){
+    super(props);
+    this.state = {
+      editMode: false,
+      value: props.data.content
+    }
+
+    this.toggleEdit = this.toggleEdit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
   componentDidUpdate(){
     //INITIALIZE DROPDOWN
     $('#dropdown-button-'+this.props.data._id).dropdown({
@@ -13,28 +23,74 @@ class Memo extends Component{
       belowOrigin: true //Display dropdown below the button
     });
   }
+
+  handleChange(e){
+    this.setState({
+      value: e.target.value
+    });
+  }
+  toggleEdit(){
+    if(this.state.editMode){
+      let id = this.props.data._id;
+      let index = this.props.index;
+      let content = this.state.value;
+      console.log(id);
+      this.props.onEdit(id, index, content).then(()=>{
+        this.setState({
+          editMode: !this.state.editMode
+        });
+      });
+    }else{
+      this.setState({
+        editMode: !this.state.editMode
+      });
+    }
+  }
+
   render(){
     const { data, ownership } = this.props;
-    
+
+    let editInfo = (
+      <span style={{color: '#AAB5BC'}}>· Edited <TimeAgo date={data.date.edited} live={true}/></span>
+    );
+
+    const dropDownMenu = (
+      <div className="option-button">
+          <a className='dropdown-button'
+               id={`dropdown-button-${data._id}`}
+               data-activates={`dropdown-${data._id}`}>
+              <i className="material-icons icon-button">more_vert</i>
+          </a>
+          <ul id={`dropdown-${data._id}`} className='dropdown-content'>
+              <li><a onClick={this.toggleEdit}>Edit</a></li>
+              <li><a>Remove</a></li>
+          </ul>
+      </div>
+    );
     const memoView = (
       <div className="card">
         <div className="info">
           <a className="username">{data.writer}</a> <TimeAgo date={data.date.created}/>
-          <div className="option-button">
-            <a className="dropdown-button" id={`dropdown-button-${data._id}`} data-activates='dropdown-id'>
-              <i className="material-icons icon-button">more_vert</i>
-            </a>
-            <ul id="dropdown-id" className="dropdown-content">
-              <li><a>Edit</a></li>
-              <li><a>Remove</a></li>
-            </ul>
-          </div>
+          {data.is_edited ? editInfo : null}
+          {ownership ? dropDownMenu : null}
+        </div>
+        <div className="card-content">
+          {data.content}
+        </div>
+        <div className="footer">
+          <i className="material-icons log-footer star icon-button">star</i>
+          <span className="star-count">{data.starred.length}</span>
+        </div>
+      </div>
+    )
+    const editView = (
+      <div className="write">
+        <div className="card">
           <div className="card-content">
-            {data.content}
+            <textarea className="materialize-textarea" value={this.state.value} onChange={this.handleChange}></textarea>
           </div>
-          <div className="footer">
-            <i className="material-icons log-footer star icon-button">star</i>
-            <span className="star-count">{data.starred.length}</span>
+          <div className="card-action">
+            <a onClick={this.toggleEdit}>OK</a>
           </div>
         </div>
       </div>
@@ -42,7 +98,7 @@ class Memo extends Component{
 
     return (
       <div className="container memo">
-        {memoView}
+        {this.state.editMode ? editView : memoView}
       </div>
     )
   }
@@ -50,7 +106,9 @@ class Memo extends Component{
 
 Memo.propTypes = {
   data: PropTypes.object,
-  ownership: PropTypes.bool
+  ownership: PropTypes.bool,
+  onEdit: PropTypes.func,
+  index: PropTypes.number
 }
 
 Memo.defaultProps = {
@@ -65,6 +123,10 @@ Memo.defaultProps = {
     },
     starred: []
   },
-  ownership: true
+  ownership: true,
+  onEdit: (id, index, contents) => {
+    console.error('onEdit function is not defined');
+  },
+  index: -1
 }
 export default Memo;

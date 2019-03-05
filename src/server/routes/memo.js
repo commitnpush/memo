@@ -6,10 +6,10 @@ const router = express.Router();
 
 /*
   WRITE MEMO: POST /api/memo
-  BODY SAMPLE: {contents: "sample"}
+  BODY SAMPLE: {content: "sample"}
   ERROR CODES
     1: NOT LOGGED IN
-    2: EMPTY CONTENTS
+    2: EMPTY CONTENT
 */
 router.post('/', (req, res) => {
   //CHECK LOGIN STATUS
@@ -20,10 +20,10 @@ router.post('/', (req, res) => {
     });
   }
 
-  //CHECK CONTENTS VALID
+  //CHECK CONTENT VALID
   if(typeof req.body.content !== 'string' || req.body.content === ''){
     return res.status(400).json({
-      error: "EMPTY CONTENTS",
+      error: "EMPTY CONTENT",
       code:2
     });
   }
@@ -44,11 +44,11 @@ router.post('/', (req, res) => {
 
 /*
     MODIFY MEMO: PUT /api/memo/:id
-    BODY SAMPLE: { contents: "sample "}
+    BODY SAMPLE: { content: "sample "}
     ERROR CODES
         1: INVALID ID,
-        2: EMPTY CONTENTS
-        3: NOT LOGGED IN
+        2: EMPTY CONTENT
+        3: NOT SIGNED IN
         4: NO RESOURCE
         5: PERMISSION FAILURE
 */
@@ -62,15 +62,15 @@ router.put('/:id', (req, res) => {
   }
 
   //CHECK CONTENTS VALID
-  if(typeof req.body.contents !== 'string' || req.body.contents === ''){
+  if(typeof req.body.content !== 'string' || req.body.content === ''){
     return res.status(400).json({
       error: "EMPTY CONTENTS",
-      code: 1
+      code: 2
     });
   }
 
   //CHECK LOGIN STATUS
-  if(typeof req.session.loginInfo === 'undefinded'){
+  if(typeof req.session.loginInfo === 'undefined'){
     return res.status(403).json({
       error: "NOT LOGGED IN",
       code: 3
@@ -98,7 +98,7 @@ router.put('/:id', (req, res) => {
     }
 
     //MODIFY AND SAVE IN DATABASE
-    memo.contents = req.body.contents;
+    memo.content = req.body.content;
     memo.date.edited = new Date();
     memo.is_eidted = true;
 

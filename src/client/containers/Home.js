@@ -1,21 +1,20 @@
 import React, {Component} from 'react';
 import { Write, MemoList } from 'components';
 import { connect } from 'react-redux';
-import { memoPostRequest, memoListRequest } from 'actions/memo';
+import { memoPostRequest, memoListRequest, memoEditRequest } from 'actions/memo';
+import { memoEdit } from '../actions/memo';
 class Home extends Component{
   constructor(props){
     super(props);
     this.handlePost = this.handlePost.bind(this);
     this.loadNewMemo = this.loadNewMemo.bind(this);
     this.loadOldMemo = this.loadOldMemo.bind(this);
+    this.handleEdit = this.handleEdit.bind(this);
     this.state = {
       loadingState: false
     };
   }
-  componentWillReceiveProps(nextProps){
-    console.log("prev", JSON.stringify(this.props.data));
-    console.log("next", JSON.stringify(nextProps.data));
-  }
+
   componentDidMount(){
     //LOAD NEW MEMO EVERY 5 SECONDS
     const loadMemoLoop = () => {
@@ -113,6 +112,42 @@ class Home extends Component{
     return this.props.memoListRequest(false, 'new', this.props.data[0]._id);
   }
 
+  /*EIDT MEMO */
+  handleEdit(id, index, content){
+    return this.props.memoEditRequest(id, index, content).then(()=>{
+      if(this.props.edit.status==="SUCCESS") {
+        Materialize.toast('Success!', 2000);
+    } else {
+        /*
+            ERROR CODES
+                1: INVALID ID,
+                2: EMPTY CONTENT
+                3: NOT LOGGED IN
+                4: NO RESOURCE
+                5: PERMISSION FAILURE
+        */
+        let errorMessage = [
+            'Something broke',
+            'Please write soemthing',
+            'You are not logged in',
+            'That memo does not exist anymore',
+            'You do not have permission'
+        ];
+        
+        let error = this.props.edit.error;
+        
+        // NOTIFY ERROR
+        let $toastContent = $('<span style="color: #FFB4BA">' + errorMessage[error - 1] + '</span>');
+        Materialize.toast($toastContent, 2000);
+    
+        // IF NOT LOGGED IN, REFRESH THE PAGE AFTER 2 SECONDS
+        if(error === 3) {
+            setTimeout(()=> {location.reload(false)}, 2000);
+        }
+      } 
+    })
+  }
+
   /* POST MEMO */
   handlePost(content){
     return this.props.memoPostRequest(content).then(
@@ -128,7 +163,7 @@ class Home extends Component{
           /*
             ERROR CODES
               1: NOT SIGNED IN
-              2: EMPTY CONTENTS
+              2: EMPTY CONTENT
           */
          let $toastContent;
          switch(this.props.post.error){
@@ -158,7 +193,7 @@ class Home extends Component{
     return (
       <div className="wrapper">
         {this.props.isSignedIn ? <Write onPost={this.handlePost}/> : null}
-        <MemoList data={this.props.data} currentUser={this.props.currentUser}/>
+        <MemoList data={this.props.data} currentUser={this.props.currentUser} onEdit={this.handleEdit}/>
       </div>
     )
   }
@@ -170,6 +205,7 @@ const mapStateToProps = (state) => {
     currentUser: state.authentication.status.currentUser,
     post: state.memo.post,
     data: state.memo.list.data,
+    edit: state.memo.edit,
     listStatus: state.memo.list.status,
     isLast:state.memo.list.isLast
   }
@@ -182,6 +218,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     memoListRequest: (isInitial, listType, id, username) => {
       return dispatch(memoListRequest(isInitial, listType, id, username));
+    },
+    memoEditRequest: (id, index, content) => {
+      return dispatch(memoEditRequest(id, index, content));
     }
   }
 }

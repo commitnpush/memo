@@ -8,7 +8,7 @@ class MemoList extends Component{
     const mapToComponents = data => {
       return data.map((memo, i) => {
         return (
-          <Memo data={memo} ownership={(memo.writer === this.props.currentUser)} key={memo._id}/>
+          <Memo data={memo} ownership={(memo.writer === this.props.currentUser)} key={memo._id} index={i} onEdit={this.props.onEdit}/>
         );
       });
     }
@@ -22,12 +22,16 @@ class MemoList extends Component{
 
 MemoList.propTypes = {
   data: PropTypes.array,
-  currentuser: PropTypes.string
+  currentuser: PropTypes.string,
+  onEdit: PropTypes.func
 }
 
 MemoList.defaultProps = {
   data: [],
-  currentUser: ''
+  currentUser: '',
+  onEdit: (id, index, content) => {
+    console.error('edit funciton not defined');
+  }
 }
 
 
