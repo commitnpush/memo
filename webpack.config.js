@@ -6,6 +6,7 @@ const  outputDirectory = "dist";
 
 module.exports  = {
   entry:[
+    "babel-polyfill",
     "./src/client/index.js",
     "./src/client/style.css"
   ],
