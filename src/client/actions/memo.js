@@ -133,7 +133,7 @@ export function memoListRequest(isInitial, listType, id, username){
       url = isInitial ? url : `${url}/${listType}/${id}`
     }else{
       //load memos of specific user
-      //to be implemented
+      url = isInitial ? `${url}/${username}`: `${url}/${username}/${listType}/${id}`;
     }
 
     return axios.get(url).then( response => {

@@ -161,7 +161,7 @@ router.put('/:id', (req, res) => {
     //MODIFY AND SAVE IN DATABASE
     memo.content = req.body.content;
     memo.date.edited = new Date();
-    memo.is_eidted = true;
+    memo.is_edited = true;
 
     memo.save((err, memo) => {
       if(err) throw err;
@@ -223,6 +223,65 @@ router.delete('/:id', (req, res) => {
   });
 });
 
+/* 
+  READ MEMO OF A USER: GET /api/memo:username 
+*/
+router.get('/:username', (req, res) => {
+  Memo.find({writer: req.params.username})
+  .sort({"_id": -1})
+  .limit(6)
+  .exec((error, memos) => {
+    if(error) throw error;
+    res.json(memos);
+  });
+});
+
+/* 
+  READ ADDITIONAL MEMO OF A USER: GET /api/memo/:username/:listType/:id
+*/
+router.get('/:username/:listType/:id', (req, res) => {
+  let {listType, id, username} = req.params;
+
+  //CHECK LIST TYPE VALIDITY
+  if(listType !== 'old' && listType !== 'new'){
+    return res.status(400).json({
+      error: "INVALID LIST TYPE",
+      code: 1
+    });
+  }
+
+  //CHECK MEMO ID VALIDITY
+  if(!mongoose.Types.ObjectId.isValid(id)){
+    return res.status(400).json({
+      error: "INVALID ID",
+      code: 2
+    });
+  }
+
+  let objId = new mongoose.Types.ObjectId(req.params.id);
+  
+  if(listType === 'new'){
+    //GET NEWER MEMO
+    Memo.find({writer: username, _id: {$gt: objId}})
+    .sort({_id: -1})
+    .limit(6)
+    .exec((error, memos)=>{
+      if(error) throw error;
+      return res.json(memos);
+    });
+  }else{
+    //GET OLDER MEMO
+    Memo.find({writer: username, _id: {$lt: objId}})
+    .sort({_id: -1})
+    .limit(6)
+    .exec((error, memos)=>{
+      if(error) throw error;
+      return res.json(memos);
+    });
+  }
+});
+
+
 /*
     READ MEMO: GET /api/memo
 */
@@ -236,6 +295,9 @@ router.get('/', (req, res) => {
   });
 });
 
+/*
+  READ ADDITIONAL: GET /api/memo/:listType/:id
+*/
 router.get('/:listType/:id', (req, res) => {
   let listType = req.params.listType;
   let id = req.params.id;

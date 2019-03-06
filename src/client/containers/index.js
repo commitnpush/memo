@@ -1,6 +1,5 @@
-import App from "./App";
-import Home from "./Home";
-import SignIn from "./SignIn";
-import Register from "./Register";
-
-export {App, Home, SignIn, Register}
+export {default as App} from './App';
+export {default as Home} from './Home';
+export {default as SignIn} from './SignIn';
+export {default as Register} from './Register';
+export {default as Wall} from './Wall';

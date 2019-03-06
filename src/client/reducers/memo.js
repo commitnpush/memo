@@ -1,6 +1,5 @@
 import * as types from 'actions/ActionTypes';
 import update from 'react-addons-update';
-import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
 
 const initialState = {
   post: {

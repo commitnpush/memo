@@ -1,6 +1,7 @@
 import React, { Component}  from 'react';
 import PropTypes from 'prop-types';
 import TimeAgo from 'react-timeago';
+import {Link} from 'react-router-dom';
 class Memo extends Component{
   constructor(props){
     super(props);
@@ -82,7 +83,7 @@ class Memo extends Component{
     let starStyle = (data.starred.indexOf(this.props.currentUser) > -1) ? { color: '#ff9980' } : {} ;
 
     let editInfo = (
-      <span style={{color: '#AAB5BC'}}>· Edited <TimeAgo date={data.date.edited} live={true}/></span>
+      <span style={{color: '#AAB5BC'}}> · Edited <TimeAgo date={data.date.edited} live={false}/></span>
     );
 
     const dropDownMenu = (
@@ -101,7 +102,7 @@ class Memo extends Component{
     const memoView = (
       <div className="card">
         <div className="info">
-          <a className="username">{data.writer}</a> <TimeAgo date={data.date.created}/>
+          <Link to={`/wall/${data.writer}`}className="username">{data.writer}</Link> · Wrote <TimeAgo date={data.date.created} live={false}/>
           {data.is_edited ? editInfo : null}
           {ownership ? dropDownMenu : null}
         </div>

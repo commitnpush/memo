@@ -3,6 +3,24 @@ import Account from '../models/account';
 import { type } from 'os';
 const router = express.Router();
 
+/* SEARCH USER: GET /api/account/search/:username */
+router.get('/search/:username', (req, res) => {
+  //SEARCH USERNAMES THAT STARTS WITH GIVEN KEYWORD USING REGEX
+  const re = new RegExp('^'+req.params.username);
+  Account.find({username : {$regex: re}}, {_id: false, username:true})
+  .limit(5)
+  .sort({username:1})
+  .exec((error, accounts) => {
+    if(error) throw error;
+    return res.json(accounts);
+  });
+});
+
+/* EMPTY SEARCH REQUEST: GET /api/account/search */
+router.get('/search', (req, res) => {
+  res.json([]);
+});
+
 /*
   Account SIGNUP : POST /api/account/signup
   BODY SAMPLE: {"username":"test", "password":"1111"}

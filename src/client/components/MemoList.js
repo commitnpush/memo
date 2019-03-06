@@ -7,8 +7,6 @@ class MemoList extends Component{
     return JSON.stringify(this.props) !== JSON.stringify(nextProps);
   }
   render() {
-    console.warn("MemoList.render excuted");
-
     const mapToComponents = data => {
       return data.map((memo, i) => {
         return (

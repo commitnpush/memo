@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {Route} from 'react-router-dom'
 import './app.css';
 import { Header } from 'components';
-import { Home, SignIn, Register } from 'containers';
+import { Home, SignIn, Register, Wall } from 'containers';
 import { connect } from 'react-redux';
 import { getStatusRequest, signOutRequest } from 'actions/authentication';
 
@@ -70,10 +70,11 @@ class App extends Component {
     let isAuthPage = /(signin|register)/.test(this.props.location.pathname);
     return (
       <div>
-        {isAuthPage ? null : <Header isSignedIn={this.props.status.isSignedIn} onSignOut={this.handleSignOut}/>}
+        {isAuthPage ? null : <Header isSignedIn={this.props.status.isSignedIn} onSignOut={this.handleSignOut} history={this.props.history}/>}
         <Route exact path="/" component={Home}/>
         <Route exact path="/signin" component={SignIn}/>
         <Route exact path="/register" component={Register}/>
+        <Route exact path="/wall/:username" component={Wall}/>
       </div>
     );
   }
